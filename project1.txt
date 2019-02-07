@@ -1,0 +1,28 @@
+CS452/EE465 Computer Graphics Spring 2017
+Project #1
+
+For Project 1 create a 2D game as a WebGL application. You MUST work on this project in TEAMS OF TWO. Team names should be sent in via email by Monday, Feb 6, 4:00 PM. If no names are provided, teams will be assigned at random.
+
+1) The Game should have more than 5 2D polygons in the duration of the game.
+2) The Game should have more than 3 colors.
+3) The Game should have a scoring system and win condition.
+4) The player must interact with the game to score using a mouse, a keyboard, or event-driven input, e.g. sliders and buttons.
+5) The Game Controls should be intuitive to use and have a description of the controls in a file named README.txt.
+6) Provide a description in README.txt on how you implemented the your game.
+
+There are no templates provided for the project. If you have a .js file, please provide your name within the .js file. If you have put all your implementation in a .html file (with no .js files), please put your name in comments in the .html file. Also, include your name in README.txt.
+  
+Some Examples:
+  -Galaga
+  -Helicopter
+  -Pong
+
+Scoring rubric (out of 50 points):
+1) 10 points for polygon creation
+2) 10 points for coloring polygons
+3) 5 points for the scoring system
+4) 5 points for the win condition
+5) 10 points for player controls and interaction
+6) 10 points for the description on how you implemented the game
+
+Deliverables: Store all files and folders you use (including your Common/ folder or any folders that contain your Common/ folder) in a single directory called ‘project1/‘. Zip ‘project1/‘ into a single .zip file called ‘project1.zip’. Please submit ‘project1.zip’ to Moodle by the due date. If you do not follow these instructions, you stand to lose all points pertaining to running of the code, i.e., all points for parts 1 to 5 in the scoring rubric. 
