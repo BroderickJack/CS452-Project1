@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
-            <title>2D Triangle</title>
+            <title>Whack-a-Shape</title>
 
             <script type="x-shader/x-vertex" id="vertex-shader">
                 attribute vec4 myPosition;
@@ -13,11 +13,33 @@
             </script>
 
             <script type="x-shader/x-fragment" id="fragment-shader">
-
                 void main() {
                     gl_FragColor = vec4( 1.0, 1.0, .0, 1.0 );
                 }
             </script>
+
+
+
+
+
+            <script type="x-shader/x-vertex-diamond" id="vertex-shader-diamond">
+                attribute vec4 myPosition;
+                void main() {
+                    gl_Position = myPosition;
+                    gl_PointSize = 1.0;
+                }
+            </script>
+
+            <script type="x-shader/x-fragment-diamond" id="fragment-shader-diamond">
+
+                void main() {
+                    gl_FragColor = vec4( .0, 1.0, 1.0, 1.0 );
+                }
+            </script>
+
+
+
+
             <script type="text/javascript" src="Common/webgl-utils.js"></script>
             <script type="text/javascript" src="Common/initShaders.js"></script>
             <script type="text/javascript" src="Common/MV.js"></script>
@@ -26,8 +48,8 @@
 
     </head>
 
-    <body  onload="drawTriangle()">
-        <canvas width="512" height="512" id="gl-canvas" onclick="checkBounds(event)">
+    <body  onload="init()">
+        <canvas width="1024" height="512" id="gl-canvas" onclick="checkBounds(event)">
         </canvas>
     </body>
 </html>
