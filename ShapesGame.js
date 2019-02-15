@@ -67,6 +67,7 @@ function vertexScaler(vertexPoints, scaleFactor)
         console.log("New: " + pointAfter);
         newPoints[i] = pointAfter;
     }
+    return newPoints;
 }
 
 function scalePoints(points) {
@@ -76,7 +77,7 @@ function scalePoints(points) {
     newPoints = [];
     for( i = 0; i < points.length; i++) {
         p = points[i];
-        console.log("Old: " + p);
+//        console.log("Old: " + p);
         x1 = p[0];
         y1 = p[1];
 
@@ -110,8 +111,8 @@ function addDiamond() {
     verty = vertexScaler(verty, Y_SCALE);
     
     diamond = {
-    vertx: [ x, .0, -x, .0],
-    verty: [.0, -x, .0, x],
+    vertx: vertx,
+    verty: verty,
     arrayOfPoints: arrayOfPoints,
     nvert: 4,
     frameCount: 0,
@@ -131,7 +132,11 @@ function addTriangle() {
 
     nvert = 3;
     vertx = [ .0, 1.0, .0];
+    vertx = vertexScaler(vertx, X_SCALE);
+    console.log("Vert x add triangle: " + vertx);
     verty = [1.0, .0, .0];
+    verty = vertexScaler(verty, Y_SCALE);
+    console.log("Vert y add triangle: " + verty);
 
     // Create a shape object
     triangle = {
@@ -183,6 +188,9 @@ function checkShape(testx, testy, s) {
     var nvert = s.nvert;
     var vertx = s.vertx;
     var verty = s.verty;
+    
+    console.log("vertx: " + vertx);
+    console.log("verty: " + verty);
 
     for (i = 0, j = nvert-1; i < nvert; j = i++) {
         if ( ((verty[i]>testy) != (verty[j]>testy)) &&
