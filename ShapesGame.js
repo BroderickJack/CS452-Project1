@@ -17,6 +17,7 @@ var CANVAS_Y = 512.0 * Y_SCALE;
 var MS_FRAME = 15; // [ms/frame]
 var MAX_TIME = 5; // [sec] the maximum amount of time to have a shape show
 var MAX_FRAMES = MAX_TIME * 1000 * MS_FRAME;
+var x;
 
 function init()
 {
@@ -29,7 +30,7 @@ function init()
     gl.viewport( 0, 0, 1024, 512 );   // x, y, width, height
 
     // Set up the background color
-    gl.clearColor( 1.0, 0.0, 0.0, 1.0 );
+    gl.clearColor( .50, .10, .90, 1.0 );
 
     // Force the WebGL context to clear the color buffer
     gl.clear( gl.COLOR_BUFFER_BIT );
@@ -54,6 +55,19 @@ function init()
     setInterval(renderShapes, 15);
 }
 
+function vertexScaler(vertexPoints, scaleFactor)
+{
+    var i;
+    var newPoint;
+    newPoints = [];
+    for( i = 0; i < vertexPoints.length; i++) {
+        pointBefore = vertexPoints[i];
+        console.log("Old: " + p);
+        pointAfter = pointBefore / scaleFactor;
+        console.log("New: " + pointAfter);
+        newPoints[i] = pointAfter;
+    }
+}
 
 function scalePoints(points) {
     // This function scales the shapes based on the canvas size so that they keep the correct proportions
@@ -81,9 +95,30 @@ function scalePoints(points) {
 }
 
 function addDiamond() {
-
-
-
+    x = .25;
+    var p0 = vec2 ( x, .0 );
+    var p1 = vec2 ( .0, -x );
+    var p2 = vec2( -x, .0 );
+    var p3 = vec2( .0, x)
+    
+    var arrayOfPoints = [p0, p1, p2, p3];
+    arrayOfPoints = scalePoints(arrayOfPoints);
+    nvert = 4;
+    vertx = [ x, .0, -x, .0];
+    vertx = vertexScaler(vertx, X_SCALE);
+    verty = [.0, -x, .0, x];
+    verty = vertexScaler(verty, Y_SCALE);
+    
+    diamond = {
+    vertx: [ x, .0, -x, .0],
+    verty: [.0, -x, .0, x],
+    arrayOfPoints: arrayOfPoints,
+    nvert: 4,
+    frameCount: 0,
+    };
+    shapeTypes.push(diamond);
+    shapes.push(diamond);
+    
 }
 
 function addTriangle() {
@@ -92,7 +127,7 @@ function addTriangle() {
     var p1 = vec2 ( 1.0, .0 );
     var p2 = vec2( .0, .0 );
     var arrayOfPoints = [p0, p1, p2];
-    // arrayOfPoints = scalePoints(arrayOfPoints);
+    arrayOfPoints = scalePoints(arrayOfPoints);
 
     nvert = 3;
     vertx = [ .0, 1.0, .0];
@@ -100,8 +135,8 @@ function addTriangle() {
 
     // Create a shape object
     triangle = {
-      vertx: [0.0, 1.0, 0.0],
-      verty: [1.0, 0.0, 0.0],
+      vertx: vertx,
+      verty: verty,
       arrayOfPoints: arrayOfPoints,
       nvert: 3,
       frameCount: 0,
@@ -125,7 +160,7 @@ function renderShapes() {
         s = shapes[i];
         // console.log(s);
         gl.bufferData( gl.ARRAY_BUFFER, flatten(s.arrayOfPoints), gl.STATIC_DRAW );
-        gl.drawArrays( gl.LINE_LOOP, 0, 3 ); //0 is another offset and 3 is how many points to d
+        gl.drawArrays( gl.LINE_LOOP, 0, s.nvert ); //0 is another offset and 3 is how many points to d
         //console.log(s.frameCount);
         if(((s.frameCount * MS_FRAME)/1000.0) > MAX_TIME) {
             // We must remove the element from the list
@@ -183,5 +218,8 @@ function checkBounds(event)
     // console.log("Testx: ", testx);
     // console.log("Testy: ", testy);
 
-    checkShape(testx, testy, shapes[0]);
+    var i;
+    for(i=0; i< shapes.length; i++) {
+        checkShape(testx, testy, shapes[i]);
+    }
 }
