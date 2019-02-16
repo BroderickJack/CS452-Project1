@@ -9,6 +9,7 @@ var gl;
 var score;
 var shaderProgram;
 var shaderProgramDiamond;
+var shaderProgramCircle;
 var X_SCALE = 2;
 var Y_SCALE = 1;
 var CANVAS_X = 512.0 * X_SCALE;
@@ -43,10 +44,13 @@ function init()
     gl.useProgram( shaderProgram );
     addTriangle();
 
-
     shaderProgramDiamond = initShaders( gl, "vertex-shader-diamond", "fragment-shader-diamond" );
     gl.useProgram (shaderProgramDiamond );
     addDiamond();
+    
+    shaderProgram = initShaders( gl,"vertex-shader-circle", "fragment-shader-circle" );
+    gl.useProgram( shaderProgram );
+    //addCircle();
 
     var myPositionAttribute = gl.getAttribLocation( shaderProgram, "myPosition"); //telling theis function to get variable "myPosition" from shaderProgram, getAttribLocation to js to get handle to myPosition variable in the shader
     gl.vertexAttribPointer( myPositionAttribute, 2, gl.FLOAT, false, 0, 0 ); // (variable, stepping in sets of 2,  )
@@ -124,17 +128,18 @@ function addDiamond() {
 
 function addTriangle() {
     // Enter array set up code here
-    var p0 = vec2 ( .0, 1.0 );
-    var p1 = vec2 ( 1.0, .0 );
-    var p2 = vec2( .0, .0 );
+    x = .25
+    var p0 = vec2 ( -x, -x );
+    var p1 = vec2 ( -x, x );
+    var p2 = vec2( x, -x );
     var arrayOfPoints = [p0, p1, p2];
     arrayOfPoints = scalePoints(arrayOfPoints);
 
     nvert = 3;
-    vertx = [ .0, 1.0, .0];
+    vertx = [ -x, -x, x];
     vertx = vertexScaler(vertx, X_SCALE);
     console.log("Vert x add triangle: " + vertx);
-    verty = [1.0, .0, .0];
+    verty = [-x, x, -x];
     verty = vertexScaler(verty, Y_SCALE);
     console.log("Vert y add triangle: " + verty);
 
