@@ -36,7 +36,7 @@ function init()
     gl.viewport( 0, 0, 1024, 512 );   // x, y, width, height
 
     // Set up the background color
-    gl.clearColor( .50, .10, .90, 1.0 );
+    gl.clearColor( 0.647, 0.0, 1.0, 1.0 );
 
     // Force the WebGL context to clear the color buffer
     gl.clear( gl.COLOR_BUFFER_BIT );
