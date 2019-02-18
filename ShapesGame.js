@@ -9,11 +9,8 @@ var gl;
 var score;
 var shaderProgram;
 var shaderProgramDiamond;
-<<<<<<< HEAD
-
-=======
 var shaderProgramCircle;
->>>>>>> 5a281f4bb3122225136f05e4fa7121095cdc6050
+var canvas;
 var X_SCALE = 2;
 var Y_SCALE = 1;
 var CANVAS_X = 512.0 * X_SCALE;
@@ -21,17 +18,13 @@ var CANVAS_Y = 512.0 * Y_SCALE;
 
 var MS_FRAME = 15; // [ms/frame]
 var MAX_TIME = 5; // [sec] the maximum amount of time to have a shape show
-<<<<<<< HEAD
-var MAX_FRAMES = MAX_TIME * 1000 / MS_FRAME;
-=======
 var MAX_FRAMES = MAX_TIME * 1000 * MS_FRAME;
 var x;
->>>>>>> 5a281f4bb3122225136f05e4fa7121095cdc6050
 
 function init()
 {
     // Set up the canvas
-    var canvas = document.getElementById("gl-canvas");
+    canvas = document.getElementById("gl-canvas");
     gl = WebGLUtils.setupWebGL(canvas);
     if (!gl) { alert( "WebGL is not available" ); }
 
@@ -59,7 +52,7 @@ function init()
     shaderProgramDiamond = initShaders( gl, "vertex-shader-diamond", "fragment-shader-diamond" );
     gl.useProgram (shaderProgramDiamond );
     addDiamond();
-    
+
     shaderProgram = initShaders( gl,"vertex-shader-circle", "fragment-shader-circle" );
     gl.useProgram( shaderProgram );
     //addCircle();
@@ -117,11 +110,7 @@ function addDiamond() {
     var p1 = vec2 ( .0, -x );
     var p2 = vec2( -x, .0 );
     var p3 = vec2( .0, x)
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> 5a281f4bb3122225136f05e4fa7121095cdc6050
     var arrayOfPoints = [p0, p1, p2, p3];
     arrayOfPoints = scalePoints(arrayOfPoints);
     nvert = 4;
@@ -129,11 +118,7 @@ function addDiamond() {
     vertx = vertexScaler(vertx, X_SCALE);
     verty = [.0, -x, .0, x];
     verty = vertexScaler(verty, Y_SCALE);
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> 5a281f4bb3122225136f05e4fa7121095cdc6050
     diamond = {
     vertx: vertx,
     verty: verty,
@@ -143,11 +128,7 @@ function addDiamond() {
     };
     shapeTypes.push(diamond);
     shapes.push(diamond);
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> 5a281f4bb3122225136f05e4fa7121095cdc6050
 }
 
 function addTriangle() {
@@ -217,9 +198,9 @@ function checkShape(testx, testy, s) {
     var nvert = s.nvert;
     var vertx = s.vertx;
     var verty = s.verty;
-    
-    console.log("vertx: " + vertx);
-    console.log("verty: " + verty);
+
+    //console.log("vertx: " + vertx);
+    //console.log("verty: " + verty);
 
     for (i = 0, j = nvert-1; i < nvert; j = i++) {
         if ( ((verty[i]>testy) != (verty[j]>testy)) &&
@@ -235,7 +216,7 @@ function checkShape(testx, testy, s) {
         // Need to update the score
         var addedPoints = MAX_FRAMES - s.frameCount
         score += addedPoints;
-        console.log("Score updated to: " + score);
+        //console.log("Score updated to: " + score);
         // document.getElementById("score").value = score;
         document.getElementById("score").innerHTML = "Score: " + score;
 
@@ -252,25 +233,26 @@ function checkShape(testx, testy, s) {
 
 function checkBounds(event)
 {
+    // Get the bounding box of the canvas
+    var rect = canvas.getBoundingClientRect();
+
     // console.log("Clicked");
-    var canvasx = event.clientX;
-    var canvasy = event.clientY;
+    var canvasx = event.clientX - rect.left;
+    var canvasy = event.clientY - rect.top;
+
+    console.log(canvasx);
+    console.log(canvasy);
 
     testx = 2.0*canvasx/CANVAS_X-1.0;
     testy = -(2.0*canvasy/CANVAS_Y-1.0);
 
-    // console.log("Testx: ", testx);
-    // console.log("Testy: ", testy);
+
+    console.log("Testx: ", testx);
+    console.log("Testy: ", testy);
 
     var i;
-<<<<<<< HEAD
     for(i = 0; i < shapes.length; i++) {
         checkShape(testx, testy, shapes[i]);
     }
     // checkShape(testx, testy, shapes[0]);
-=======
-    for(i=0; i< shapes.length; i++) {
-        checkShape(testx, testy, shapes[i]);
-    }
->>>>>>> 5a281f4bb3122225136f05e4fa7121095cdc6050
 }
