@@ -32,6 +32,21 @@
                     gl_FragColor = vec4( .0, 1.0, 1.0, 1.0 );
                 }
             </script>
+            
+            <script type="x-shader/x-vertex-circle" id="vertex-shader-circle">
+                attribute vec4 myPosition;
+                void main() {
+                    gl_Position = myPosition;
+                    gl_PointSize = 1.0;
+                }
+            </script>
+            
+            <script type="x-shader/x-fragment-circle" id="fragment-shader-circle">
+                
+                void main() {
+                    gl_FragColor = vec4( .0, 1.0, 1.0, 1.0 );
+                }
+            </script>
 
             <script type="x-shader/x-vertex-circle" id="vertex-shader-circle">
                 attribute vec4 myPosition;

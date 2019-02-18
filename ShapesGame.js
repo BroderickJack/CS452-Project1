@@ -9,7 +9,11 @@ var gl;
 var score;
 var shaderProgram;
 var shaderProgramDiamond;
+<<<<<<< HEAD
 
+=======
+var shaderProgramCircle;
+>>>>>>> 5a281f4bb3122225136f05e4fa7121095cdc6050
 var X_SCALE = 2;
 var Y_SCALE = 1;
 var CANVAS_X = 512.0 * X_SCALE;
@@ -17,7 +21,12 @@ var CANVAS_Y = 512.0 * Y_SCALE;
 
 var MS_FRAME = 15; // [ms/frame]
 var MAX_TIME = 5; // [sec] the maximum amount of time to have a shape show
+<<<<<<< HEAD
 var MAX_FRAMES = MAX_TIME * 1000 / MS_FRAME;
+=======
+var MAX_FRAMES = MAX_TIME * 1000 * MS_FRAME;
+var x;
+>>>>>>> 5a281f4bb3122225136f05e4fa7121095cdc6050
 
 function init()
 {
@@ -34,7 +43,7 @@ function init()
     gl.viewport( 0, 0, 1024, 512 );   // x, y, width, height
 
     // Set up the background color
-    gl.clearColor( 1.0, 0.0, 0.0, 1.0 );
+    gl.clearColor( .50, .10, .90, 1.0 );
 
     // Force the WebGL context to clear the color buffer
     gl.clear( gl.COLOR_BUFFER_BIT );
@@ -47,10 +56,13 @@ function init()
     gl.useProgram( shaderProgram );
     addTriangle();
 
-
     shaderProgramDiamond = initShaders( gl, "vertex-shader-diamond", "fragment-shader-diamond" );
     gl.useProgram (shaderProgramDiamond );
     addDiamond();
+    
+    shaderProgram = initShaders( gl,"vertex-shader-circle", "fragment-shader-circle" );
+    gl.useProgram( shaderProgram );
+    //addCircle();
 
     var myPositionAttribute = gl.getAttribLocation( shaderProgram, "myPosition"); //telling theis function to get variable "myPosition" from shaderProgram, getAttribLocation to js to get handle to myPosition variable in the shader
     gl.vertexAttribPointer( myPositionAttribute, 2, gl.FLOAT, false, 0, 0 ); // (variable, stepping in sets of 2,  )
@@ -81,7 +93,7 @@ function scalePoints(points) {
     newPoints = [];
     for( i = 0; i < points.length; i++) {
         p = points[i];
-        console.log("Old: " + p);
+//        console.log("Old: " + p);
         x1 = p[0];
         y1 = p[1];
 
@@ -105,7 +117,11 @@ function addDiamond() {
     var p1 = vec2 ( .0, -x );
     var p2 = vec2( -x, .0 );
     var p3 = vec2( .0, x)
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 5a281f4bb3122225136f05e4fa7121095cdc6050
     var arrayOfPoints = [p0, p1, p2, p3];
     arrayOfPoints = scalePoints(arrayOfPoints);
     nvert = 4;
@@ -113,7 +129,11 @@ function addDiamond() {
     vertx = vertexScaler(vertx, X_SCALE);
     verty = [.0, -x, .0, x];
     verty = vertexScaler(verty, Y_SCALE);
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 5a281f4bb3122225136f05e4fa7121095cdc6050
     diamond = {
     vertx: vertx,
     verty: verty,
@@ -123,25 +143,34 @@ function addDiamond() {
     };
     shapeTypes.push(diamond);
     shapes.push(diamond);
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 5a281f4bb3122225136f05e4fa7121095cdc6050
 }
 
 function addTriangle() {
     // Enter array set up code here
-    var p0 = vec2 ( .0, 1.0 );
-    var p1 = vec2 ( 1.0, .0 );
-    var p2 = vec2( .0, .0 );
+    x = .25
+    var p0 = vec2 ( -x, -x );
+    var p1 = vec2 ( -x, x );
+    var p2 = vec2( x, -x );
     var arrayOfPoints = [p0, p1, p2];
-    // arrayOfPoints = scalePoints(arrayOfPoints);
+    arrayOfPoints = scalePoints(arrayOfPoints);
 
     nvert = 3;
-    vertx = [ .0, 1.0, .0];
-    verty = [1.0, .0, .0];
+    vertx = [ -x, -x, x];
+    vertx = vertexScaler(vertx, X_SCALE);
+    console.log("Vert x add triangle: " + vertx);
+    verty = [-x, x, -x];
+    verty = vertexScaler(verty, Y_SCALE);
+    console.log("Vert y add triangle: " + verty);
 
     // Create a shape object
     triangle = {
-      vertx: [0.0, 1.0, 0.0],
-      verty: [1.0, 0.0, 0.0],
+      vertx: vertx,
+      verty: verty,
       arrayOfPoints: arrayOfPoints,
       nvert: 3,
       frameCount: 0,
@@ -166,7 +195,7 @@ function renderShapes() {
         s = shapes[i];
         // console.log(s);
         gl.bufferData( gl.ARRAY_BUFFER, flatten(s.arrayOfPoints), gl.STATIC_DRAW );
-        gl.drawArrays( gl.LINE_LOOP, 0, 3 ); //0 is another offset and 3 is how many points to d
+        gl.drawArrays( gl.LINE_LOOP, 0, s.nvert ); //0 is another offset and 3 is how many points to d
         //console.log(s.frameCount);
         if(((s.frameCount * MS_FRAME)/1000.0) > MAX_TIME) {
             // We must remove the element from the list
@@ -188,6 +217,9 @@ function checkShape(testx, testy, s) {
     var nvert = s.nvert;
     var vertx = s.vertx;
     var verty = s.verty;
+    
+    console.log("vertx: " + vertx);
+    console.log("verty: " + verty);
 
     for (i = 0, j = nvert-1; i < nvert; j = i++) {
         if ( ((verty[i]>testy) != (verty[j]>testy)) &&
@@ -231,8 +263,14 @@ function checkBounds(event)
     // console.log("Testy: ", testy);
 
     var i;
+<<<<<<< HEAD
     for(i = 0; i < shapes.length; i++) {
         checkShape(testx, testy, shapes[i]);
     }
     // checkShape(testx, testy, shapes[0]);
+=======
+    for(i=0; i< shapes.length; i++) {
+        checkShape(testx, testy, shapes[i]);
+    }
+>>>>>>> 5a281f4bb3122225136f05e4fa7121095cdc6050
 }
