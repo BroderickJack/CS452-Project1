@@ -9,6 +9,7 @@ var gl;
 var score;
 var shaderProgram;
 var shaderProgramDiamond;
+
 var X_SCALE = 2;
 var Y_SCALE = 1;
 var CANVAS_X = 512.0 * X_SCALE;
@@ -16,7 +17,7 @@ var CANVAS_Y = 512.0 * Y_SCALE;
 
 var MS_FRAME = 15; // [ms/frame]
 var MAX_TIME = 5; // [sec] the maximum amount of time to have a shape show
-var MAX_FRAMES = MAX_TIME * 1000 * MS_FRAME;
+var MAX_FRAMES = MAX_TIME * 1000 / MS_FRAME;
 
 function init()
 {
@@ -25,6 +26,10 @@ function init()
     gl = WebGLUtils.setupWebGL(canvas);
     if (!gl) { alert( "WebGL is not available" ); }
 
+    score = 0
+    // var test = "Hello";
+    // document.getElementById("score").value = score;
+    document.getElementById("score").innerHTML = "Score: " + score;
     // Set up the viewport
     gl.viewport( 0, 0, 1024, 512 );   // x, y, width, height
 
@@ -54,6 +59,20 @@ function init()
     setInterval(renderShapes, 15);
 }
 
+function vertexScaler(vertexPoints, scaleFactor)
+{
+    var i;
+    var newPoint;
+    newPoints = [];
+    for( i = 0; i < vertexPoints.length; i++) {
+        pointBefore = vertexPoints[i];
+        console.log("Old: " + p);
+        pointAfter = pointBefore / scaleFactor;
+        console.log("New: " + pointAfter);
+        newPoints[i] = pointAfter;
+    }
+    return newPoints;
+}
 
 function scalePoints(points) {
     // This function scales the shapes based on the canvas size so that they keep the correct proportions
@@ -81,8 +100,29 @@ function scalePoints(points) {
 }
 
 function addDiamond() {
+    x = .25;
+    var p0 = vec2 ( x, .0 );
+    var p1 = vec2 ( .0, -x );
+    var p2 = vec2( -x, .0 );
+    var p3 = vec2( .0, x)
 
+    var arrayOfPoints = [p0, p1, p2, p3];
+    arrayOfPoints = scalePoints(arrayOfPoints);
+    nvert = 4;
+    vertx = [ x, .0, -x, .0];
+    vertx = vertexScaler(vertx, X_SCALE);
+    verty = [.0, -x, .0, x];
+    verty = vertexScaler(verty, Y_SCALE);
 
+    diamond = {
+    vertx: vertx,
+    verty: verty,
+    arrayOfPoints: arrayOfPoints,
+    nvert: 4,
+    frameCount: 0,
+    };
+    shapeTypes.push(diamond);
+    shapes.push(diamond);
 
 }
 
@@ -118,6 +158,7 @@ function renderShapes() {
     // This function renders the list of shapes and updates the frame count for each one
     var i = 0;
     var s;
+
     // console.log("Shapes.length: ", shapes.length);
     for( i=0; i < shapes.length; i++) {
         // console.log("drawing shape");
@@ -134,13 +175,12 @@ function renderShapes() {
         }
 
         s.frameCount++;
-
         // Check to see how high the frame count is.
     }
 }
 
 function checkShape(testx, testy, s) {
-    // console.log("Checking");
+    console.log("Checking");
     // Check to see if the point clicked is in the shape
     var c = 0;
     var i = 0;
@@ -160,12 +200,19 @@ function checkShape(testx, testy, s) {
         // We need to remove the shape from the list and update the score of the game
         // The score should be the maximum number of frames it could be - the number of frames it took to click
 
+        // Need to update the score
+        var addedPoints = MAX_FRAMES - s.frameCount
+        score += addedPoints;
+        console.log("Score updated to: " + score);
+        // document.getElementById("score").value = score;
+        document.getElementById("score").innerHTML = "Score: " + score;
+
         //alert("Shape Clicked: " + s.frameCount);
         // We want to remove s from shapes
         for(i = 0; i < shapes.length; i++) {
             if(shapes[i] == s) {
                 shapes.splice(i, 1);
-                alert("Shape clicked");
+                //alert("Shape clicked");
             }
         }
     }
@@ -173,7 +220,7 @@ function checkShape(testx, testy, s) {
 
 function checkBounds(event)
 {
-    console.log("Clicked");
+    // console.log("Clicked");
     var canvasx = event.clientX;
     var canvasy = event.clientY;
 
@@ -183,5 +230,9 @@ function checkBounds(event)
     // console.log("Testx: ", testx);
     // console.log("Testy: ", testy);
 
-    checkShape(testx, testy, shapes[0]);
+    var i;
+    for(i = 0; i < shapes.length; i++) {
+        checkShape(testx, testy, shapes[i]);
+    }
+    // checkShape(testx, testy, shapes[0]);
 }
