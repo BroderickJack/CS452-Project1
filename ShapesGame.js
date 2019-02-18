@@ -18,7 +18,7 @@ var CANVAS_Y = 512.0 * Y_SCALE;
 
 var MS_FRAME = 15; // [ms/frame]
 var MAX_TIME = 5; // [sec] the maximum amount of time to have a shape show
-var MAX_FRAMES = MAX_TIME * 1000 * MS_FRAME;
+var MAX_FRAMES = MAX_TIME * 1000 / MS_FRAME;
 var x;
 
 function init()
