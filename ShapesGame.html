@@ -6,8 +6,15 @@
 
             <script type="x-shader/x-vertex" id="vertex-shader">
                 attribute vec4 myPosition;
+                uniform vec2 trans; // This is a translation for the shape
+                uniform float trans_x;
+                uniform float trans_y;
                 void main() {
-                    gl_Position = myPosition;
+                    gl_Position.x = myPosition.x + trans_x;
+                    gl_Position.y = myPosition.y + trans_y;
+                    gl_Position.z = 0.0;
+                    gl_Position.w = 1.0;
+                    // gl_Position = myPosition;
                     gl_PointSize = 1.0;
                 }
             </script>
@@ -18,7 +25,7 @@
                 }
             </script>
 
-            <script type="x-shader/x-vertex-diamond" id="vertex-shader-diamond">
+            <!-- <script type="x-shader/x-vertex-diamond" id="vertex-shader-diamond">
                 attribute vec4 myPosition;
                 void main() {
                     gl_Position = myPosition;
@@ -46,9 +53,9 @@
                 void main() {
                     gl_FragColor = vec4( .0, 1.0, 1.0, 1.0 );
                 }
-            </script>
+            </script> -->
 
-            <script type="x-shader/x-vertex-circle" id="vertex-shader-circle">
+            <!-- <script type="x-shader/x-vertex-circle" id="vertex-shader-circle">
                 attribute vec4 myPosition;
                 void main() {
                     gl_Position = myPosition;
@@ -61,7 +68,7 @@
                 void main() {
                     gl_FragColor = vec4( .0, 1.0, 1.0, 1.0 );
                 }
-            </script>
+            </script> -->
 
 
             <script type="text/javascript" src="Common/webgl-utils.js"></script>
