@@ -10,8 +10,8 @@
                 uniform float trans_x;
                 uniform float trans_y;
                 void main() {
-                    gl_Position.x = myPosition.x + trans_x;
-                    gl_Position.y = myPosition.y + trans_y;
+                    gl_Position.x = myPosition.x;
+                    gl_Position.y = myPosition.y;
                     gl_Position.z = 0.0;
                     gl_Position.w = 1.0;
                     // gl_Position = myPosition;

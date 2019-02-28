@@ -25,9 +25,9 @@ var Y_SCALE = 1;
 var CANVAS_X = 512.0 * X_SCALE;
 var CANVAS_Y = 512.0 * Y_SCALE;
 
-var NUM_SLOTS = 4; // The number of slots (number of shapes that are being shown)
+var NUM_SLOTS = 6; // The number of slots (number of shapes that are being shown)
 
-var APPEAR = 0.9; // The chance of a new shape appearing in an empty slot
+var APPEAR = 0.01; // The chance of a new shape appearing in an empty slot
 
 var MS_FRAME = 15; // [ms/frame]
 var MAX_TIME = 5; // [sec] the maximum amount of time to have a shape show
@@ -417,9 +417,26 @@ function getTriangle() {
     return triangle;
 }
 
+function shift_shapes(index, x, y) {
+    /* This functions ships the shapes by x and y and the index: index in shapes[] */
+    var s = shapes[index];
+    var i = 0;
+
+    for(i = 0; i < s.nvert; i++) {
+        /* Update vertx */
+        s.vertx[i] += x;
+        s.verty[i] += y;
+
+        /* update the vertices to draw it */
+        s.arrayOfPoints[i][0] += x;
+        s.arrayOfPoints[i][1] += y;
+    }
+}
+
 function generate_shapes() {
     /* This function is used to randomly add shapes to the array of currently displayed shapes */
     var i = 0;
+    var j;
     var shape_index;
     var type_length = shapeFunctions.length;
 
@@ -432,6 +449,15 @@ function generate_shapes() {
             if(Math.random() < APPEAR) {
                 shape_index = Math.round(Math.random() * (type_length-1));
                 shapes[i] = shapeFunctions[shape_index]();
+                console.log(shapes[i]);
+                shift_shapes(i, slot_translations[i][0], slot_translations[i][1]);
+                // for(j = 0; j < shapes[i].vertx.length; j++) {
+                //     console.log(j);
+                //     console.log(shapes[i].vertx.lenght);
+                //     console.log(slot_translations[i][0]);
+                //     shapes[i].vertx += slot_translations[i][0];
+                //     shapes[i].verty += slot_translations[i][1];
+                // }
             }
         }
     }
@@ -446,6 +472,7 @@ function renderShapes() {
     // This function renders the list of shapes and updates the frame count for each one
     var i = 0;
     var s;
+    var j;
 
     // console.log("Shapes.length: ", shapes.length);
     for( i=0; i < shapes.length; i++) {
@@ -462,8 +489,8 @@ function renderShapes() {
         // console.log(slot_translations[i][1]);
         // gl.uniform1f(translationXUniform, false, slot_translations[i][0]);
         // gl.uniform1f(translationYUniform, false, slot_translations[i][1]);
-        gl.uniform1f(translationXUniform, false, -0.5);
-        gl.uniform1f(translationYUniform, false, -0.5);
+        // gl.uniform1f(translationXUniform, false, -0.5);
+        // gl.uniform1f(translationYUniform, false, -0.5);
 
         // console.log("sent uniform");
 
@@ -474,7 +501,8 @@ function renderShapes() {
         //console.log(s.frameCount);
         if(((s.frameCount * MS_FRAME)/1000.0) > MAX_TIME) {
             // We must remove the element from the list
-            shapes.splice(i, 1);
+            // shapes.splice(i, 1);
+            shapes[i] = null;
             //console.log(shapes.length);
         }
 
@@ -517,7 +545,8 @@ function checkShape(testx, testy, s) {
         // We want to remove s from shapes
         for(i = 0; i < shapes.length; i++) {
             if(shapes[i] == s) {
-                shapes.splice(i, 1);
+                // shapes.splice(i, 1);
+                shapes[i] = null;
                 //alert("Shape clicked");
             }
         }
