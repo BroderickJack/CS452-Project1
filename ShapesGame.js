@@ -30,8 +30,10 @@ var NUM_SLOTS = 6; // The number of slots (number of shapes that are being shown
 var APPEAR = 0.01; // The chance of a new shape appearing in an empty slot
 
 var MS_FRAME = 15; // [ms/frame]
+var MIN_TIME = 1; // [sec] The minimum amount of time to have a shape show
 var MAX_TIME = 5; // [sec] the maximum amount of time to have a shape show
 var MAX_FRAMES = MAX_TIME * 1000 / MS_FRAME;
+var MIN_FRAMES = MIN_TIME * 1000 / MS_FRAME;
 var x;
 
 function init()
@@ -449,15 +451,9 @@ function generate_shapes() {
             if(Math.random() < APPEAR) {
                 shape_index = Math.round(Math.random() * (type_length-1));
                 shapes[i] = shapeFunctions[shape_index]();
-                console.log(shapes[i]);
                 shift_shapes(i, slot_translations[i][0], slot_translations[i][1]);
-                // for(j = 0; j < shapes[i].vertx.length; j++) {
-                //     console.log(j);
-                //     console.log(shapes[i].vertx.lenght);
-                //     console.log(slot_translations[i][0]);
-                //     shapes[i].vertx += slot_translations[i][0];
-                //     shapes[i].verty += slot_translations[i][1];
-                // }
+                /* Calculate a max and a minimum time for the shape */
+                shapes[i].max_time = Math.round(Math.random() * (MAX_TIME - MIN_TIME) + MIN_TIME);
             }
         }
     }
@@ -479,27 +475,14 @@ function renderShapes() {
         s = shapes[i];
 
         if(s == null) {
-            break;
+            continue;
         }
-
-        /* Send the correct trnaslation */
-        // gl.uniform2f(translationUniform, false, slot_translations[i]);
-        // gl.uniform2f(translationUniform, false, vec2(0.0,0.0));
-        // console.log(slot_translations[i][0]);
-        // console.log(slot_translations[i][1]);
-        // gl.uniform1f(translationXUniform, false, slot_translations[i][0]);
-        // gl.uniform1f(translationYUniform, false, slot_translations[i][1]);
-        // gl.uniform1f(translationXUniform, false, -0.5);
-        // gl.uniform1f(translationYUniform, false, -0.5);
-
-        // console.log("sent uniform");
-
 
         // console.log(s);
         gl.bufferData( gl.ARRAY_BUFFER, flatten(s.arrayOfPoints), gl.STATIC_DRAW );
         gl.drawArrays( gl.LINE_LOOP, 0, s.nvert ); //0 is another offset and 3 is how many points to d
         //console.log(s.frameCount);
-        if(((s.frameCount * MS_FRAME)/1000.0) > MAX_TIME) {
+        if(((s.frameCount * MS_FRAME)/1000.0) > s.max_time) {
             // We must remove the element from the list
             // shapes.splice(i, 1);
             shapes[i] = null;
@@ -535,7 +518,7 @@ function checkShape(testx, testy, s) {
         // The score should be the maximum number of frames it could be - the number of frames it took to click
 
         // Need to update the score
-        var addedPoints = MAX_FRAMES - s.frameCount
+        var addedPoints = ((s.max_time / MS_FRAME) * 1000) - s.frameCount
         score += addedPoints;
         //console.log("Score updated to: " + score);
         // document.getElementById("score").value = score;
@@ -567,7 +550,9 @@ function checkBounds(event)
 
     var i;
     for(i = 0; i < shapes.length; i++) {
-        checkShape(testx, testy, shapes[i]);
+        if(shapes[i] != null) {
+            checkShape(testx, testy, shapes[i]);
+        }
     }
     // checkShape(testx, testy, shapes[0]);
 }
