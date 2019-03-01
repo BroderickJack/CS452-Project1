@@ -20,6 +20,7 @@ var canvas;
 var translationUniform;
 var translationXUniform;
 var translationYUniform;
+var fColorUniform;
 var X_SCALE = 2;
 var Y_SCALE = 1;
 var CANVAS_X = 512.0 * X_SCALE;
@@ -35,6 +36,8 @@ var MAX_TIME = 5; // [sec] the maximum amount of time to have a shape show
 var MAX_FRAMES = MAX_TIME * 1000 / MS_FRAME;
 var MIN_FRAMES = MIN_TIME * 1000 / MS_FRAME;
 var x;
+
+var COLORS = [vec4(1.0, 0.0, 0.0, 1.0), vec4(0.0, 1.0, 0.0, 1.0), vec4(0.0, 0.0, 1.0, 1.0)];
 
 function init()
 {
@@ -72,22 +75,11 @@ function init()
 
     shaderProgram = initShaders( gl,"vertex-shader", "fragment-shader" );
     gl.useProgram( shaderProgram );
-    // addTriangle();
+    // addTriangle()
 
-    /* Get the uniform for the translation */
-    translationUniform = gl.getUniformLocation(shaderProgram, "trans");
-    translationXUniform = gl.getUniformLocation(shaderProgram, "trans_x");
-    translationYUniform = gl.getUniformLocation(shaderProgram, "trans_y");
-
-    gl.uniform1f(translationXUniform, false, 0.5);
-
-    // shaderProgramDiamond = initShaders( gl, "vertex-shader-diamond", "fragment-shader-diamond" );
-    // gl.useProgram (shaderProgramDiamond );
-    // addDiamond();
-
-    // shaderProgram = initShaders( gl,"vertex-shader-circle", "fragment-shader-circle" );
-    // gl.useProgram( shaderProgram );
-    //addCircle();
+    /* Get the uniform for the color */
+    fColorUniform = gl.getUniformLocation(shaderProgram, "fColor");
+    gl.uniform4fv(fColorUniform, COLORS[0]);
 
     var myPositionAttribute = gl.getAttribLocation( shaderProgram, "myPosition"); //telling theis function to get variable "myPosition" from shaderProgram, getAttribLocation to js to get handle to myPosition variable in the shader
     gl.vertexAttribPointer( myPositionAttribute, 2, gl.FLOAT, false, 0, 0 ); // (variable, stepping in sets of 2,  )
@@ -441,6 +433,7 @@ function generate_shapes() {
     var j;
     var shape_index;
     var type_length = shapeFunctions.length;
+    var color_index;
 
     for(i = 0; i < NUM_SLOTS; i++) {
         /* First check to see if there is another shape already there */
@@ -454,6 +447,10 @@ function generate_shapes() {
                 shift_shapes(i, slot_translations[i][0], slot_translations[i][1]);
                 /* Calculate a max and a minimum time for the shape */
                 shapes[i].max_time = Math.round(Math.random() * (MAX_TIME - MIN_TIME) + MIN_TIME);
+
+                /* Calculate a random color */
+                color_index = Math.round(Math.random() * (COLORS.length - 1));
+                shapes[i].color = COLORS[color_index];
             }
         }
     }
@@ -478,9 +475,13 @@ function renderShapes() {
             continue;
         }
 
+        /* Set the color */
+        // console.log(s.color);
+        gl.uniform4fv(fColorUniform, s.color);
+
         // console.log(s);
         gl.bufferData( gl.ARRAY_BUFFER, flatten(s.arrayOfPoints), gl.STATIC_DRAW );
-        gl.drawArrays( gl.LINE_LOOP, 0, s.nvert ); //0 is another offset and 3 is how many points to d
+        gl.drawArrays( gl.TRIANGLE_FAN, 0, s.nvert ); //0 is another offset and 3 is how many points to d
         //console.log(s.frameCount);
         if(((s.frameCount * MS_FRAME)/1000.0) > s.max_time) {
             // We must remove the element from the list
