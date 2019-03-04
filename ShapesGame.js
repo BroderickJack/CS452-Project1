@@ -483,10 +483,6 @@ function generate_shapes() {
 }
 
 function renderShapes() {
-    /* This function renders all of the shapes in shapes[]*/
-    /* We must first generate the shapes */
-    generate_shapes();
-    
     /* Generate new target shape every 4.5 seconds*/
     if (z == 0)
     {
@@ -500,6 +496,18 @@ function renderShapes() {
     }
 
     gl.clear( gl.COLOR_BUFFER_BIT);
+    
+    //gl.clear( gl.COLOR_BUFFER_BIT);
+    gl.uniform4fv(fColorUniform, target_shape.color);
+    
+    //console.log(target_shape.color);
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(target_shape.arrayOfPoints), gl.STATIC_DRAW );
+    gl.drawArrays( gl.TRIANGLE_FAN, 0, target_shape.nvert );
+    
+    /* This function renders all of the shapes in shapes[]*/
+    /* We must first generate the shapes */
+    generate_shapes();
+    
     // This function renders the list of shapes and updates the frame count for each one
     var i = 0;
     var s;
@@ -531,13 +539,7 @@ function renderShapes() {
         s.frameCount++;
         // Check to see how high the frame count is.
     }
-    
-    //gl.clear( gl.COLOR_BUFFER_BIT);
-    gl.uniform4fv(fColorUniform, target_shape.color);
-    
-    //console.log(target_shape.color);
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(target_shape.arrayOfPoints), gl.STATIC_DRAW );
-    gl.drawArrays( gl.TRIANGLE_FAN, 0, target_shape.nvert );
+
 }
 
 function checkShape(testx, testy, s) {
