@@ -16,11 +16,14 @@ var score;
 var shaderProgram;
 var shaderProgramDiamond;
 var shaderProgramCircle;
+var target_shape_translation;
+var target_shape;
 var canvas;
 var translationUniform;
 var translationXUniform;
 var translationYUniform;
 var fColorUniform;
+//var targetColorUniform;
 var X_SCALE = 2;
 var Y_SCALE = 1;
 var CANVAS_X = 512.0 * X_SCALE;
@@ -36,6 +39,7 @@ var MAX_TIME = 5; // [sec] the maximum amount of time to have a shape show
 var MAX_FRAMES = MAX_TIME * 1000 / MS_FRAME;
 var MIN_FRAMES = MIN_TIME * 1000 / MS_FRAME;
 var x;
+var z = 0;
 
 var COLORS = [vec4(1.0, 0.0, 0.0, 1.0), vec4(0.0, 1.0, 0.0, 1.0), vec4(0.0, 0.0, 1.0, 1.0)];
 
@@ -57,7 +61,7 @@ function init()
 
     /* Intialize the translations needed for each slot */
     slot_translations = [ vec2(-2.0/3, 0.5), vec2(0, 0.5), vec2(2.0/3, 0.5), vec2(-2.0/3, -0.5), vec2(0, -0.5), vec2(2.0/3, -0.5) ];
-
+    target_shape_translation = vec2(-2.5/3, 0.0);
 
     /* Setup WebGL */
     // Set up the viewport
@@ -194,7 +198,7 @@ function getEllipse() {
     var ex;
     var ey;
     //x = .25;
-    var n = 100;
+    var n = 102;
     var xStep = (2 * Math.PI)/n;
     var theta = 0;
     var a = 0;
@@ -427,6 +431,28 @@ function shift_shapes(index, x, y) {
     }
 }
 
+function generate_target_shape() {
+    var shape_index;
+    var color_index;
+    var type_length = shapeFunctions.length;
+    shape_index = Math.round(Math.random() * (type_length-1));
+    target_shape = shapeFunctions[shape_index]();
+    color_index = Math.round(Math.random() * (COLORS.length -1));
+    target_shape.color = COLORS[color_index];
+    
+    var i = 0;
+    for(i = 0; i < target_shape.nvert; i++) {
+        /* Update vertx */
+        target_shape.vertx[i] += target_shape_translation[0];
+        target_shape.verty[i] += target_shape_translation[1];
+        
+        /* update the vertices to draw it */
+        target_shape.arrayOfPoints[i][0] += target_shape_translation[0];
+        target_shape.arrayOfPoints[i][1] += target_shape_translation[1];
+    }
+    
+}
+
 function generate_shapes() {
     /* This function is used to randomly add shapes to the array of currently displayed shapes */
     var i = 0;
@@ -460,6 +486,18 @@ function renderShapes() {
     /* This function renders all of the shapes in shapes[]*/
     /* We must first generate the shapes */
     generate_shapes();
+    
+    /* Generate new target shape every 4.5 seconds*/
+    if (z == 0)
+    {
+        generate_target_shape();
+    }
+    
+    z++;
+    if (z > 300)
+    {
+        z = 0;
+    }
 
     gl.clear( gl.COLOR_BUFFER_BIT);
     // This function renders the list of shapes and updates the frame count for each one
@@ -493,12 +531,21 @@ function renderShapes() {
         s.frameCount++;
         // Check to see how high the frame count is.
     }
+    
+    //gl.clear( gl.COLOR_BUFFER_BIT);
+    gl.uniform4fv(fColorUniform, target_shape.color);
+    
+    //console.log(target_shape.color);
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(target_shape.arrayOfPoints), gl.STATIC_DRAW );
+    gl.drawArrays( gl.TRIANGLE_FAN, 0, target_shape.nvert );
 }
 
 function checkShape(testx, testy, s) {
     // Check to see if the point clicked is in the shape
     var c = 0;
     var i = 0;
+    var color_match = false;
+    var shape_match = false;
     var j;
     var nvert = s.nvert;
     var vertx = s.vertx;
@@ -512,19 +559,63 @@ function checkShape(testx, testy, s) {
             (testx < (vertx[j]-vertx[i]) * (testy-verty[i]) / (verty[j]-verty[i]) + vertx[i]) )
             c = !c;
     }
-
+    
     if(c) {
         // This is if the click is within the shape
         // We need to remove the shape from the list and update the score of the game
         // The score should be the maximum number of frames it could be - the number of frames it took to click
 
         // Need to update the score
+        
+        if(nvert == target_shape.nvert)
+        {
+            console.log("shape match!" + nvert + " = " + target_shape.nvert);
+            shape_match = true;
+        }
+        
+        if(s.color == target_shape.color)
+        {
+            console.log("color match!");
+            console.log("clicked color: " + s.color + " = " + target_shape.color);
+            color_match = true;
+
+        }
+        if (shape_match && color_match) //only change the score if the shape and color both match
+        {
         var addedPoints = ((s.max_time / MS_FRAME) * 1000) - s.frameCount
         score += addedPoints;
         //console.log("Score updated to: " + score);
         // document.getElementById("score").value = score;
         document.getElementById("score").innerHTML = "Score: " + Math.round(score);
-
+        }
+        else if (shape_match)
+        {
+            var addedPoints = ((s.max_time / MS_FRAME) * 1000) - s.frameCount
+            score += addedPoints/2;
+            //console.log("Score updated to: " + score);
+            // document.getElementById("score").value = score;
+            document.getElementById("score").innerHTML = "Score: " + Math.round(score);
+            
+        }
+        
+        else
+        {
+            var addedPoints = ((s.max_time / MS_FRAME) * 1000) - s.frameCount
+            score -= addedPoints/2;
+            document.getElementById("score").innerHTML = "Score: " + Math.round(score);
+        }
+        /*
+         //can add points for color, seems a bit much
+        else if (color_match)
+        {
+            var addedPoints = ((s.max_time / MS_FRAME) * 1000) - s.frameCount
+            score += addedPoints/4;
+            //console.log("Score updated to: " + score);
+            // document.getElementById("score").value = score;
+            document.getElementById("score").innerHTML = "Score: " + Math.round(score);
+        }
+         */
+        
         //alert("Shape Clicked: " + s.frameCount);
         // We want to remove s from shapes
         for(i = 0; i < shapes.length; i++) {
@@ -535,6 +626,7 @@ function checkShape(testx, testy, s) {
             }
         }
     }
+    
 }
 
 function checkBounds(event)
