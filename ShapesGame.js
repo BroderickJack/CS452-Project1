@@ -18,6 +18,8 @@ var shaderProgramDiamond;
 var shaderProgramCircle;
 var target_shape_translation;
 var target_shape;
+var target_box;
+var target_box_color = vec4(.0, .0, .0, 1.0)
 var canvas;
 var translationUniform;
 var translationXUniform;
@@ -50,6 +52,8 @@ function init()
     gl = WebGLUtils.setupWebGL(canvas);
     if (!gl) { alert( "WebGL is not available" ); }
 
+    
+
     /* ---------- Initialization ---------- */
     score = 0
     document.getElementById("score").innerHTML = "Score: " + score;
@@ -60,7 +64,7 @@ function init()
     }
 
     /* Intialize the translations needed for each slot */
-    slot_translations = [ vec2(-2.0/3, 0.5), vec2(0, 0.5), vec2(2.0/3, 0.5), vec2(-2.0/3, -0.5), vec2(0, -0.5), vec2(2.0/3, -0.5) ];
+    slot_translations = [ vec2(-1.0/3, 0.5), vec2(0.75/3, 0.5), vec2(2.5/3, 0.5), vec2(-1.0/3, -0.5), vec2(0.75/3, -0.5), vec2(2.5/3, -0.5) ];
     target_shape_translation = vec2(-2.5/3, 0.0);
 
     /* Setup WebGL */
@@ -96,6 +100,8 @@ function init()
     shapeFunctions.push(getPentagon);
     shapeFunctions.push(getHexagon);
     shapeFunctions.push(getCircle);
+    
+    setUpTargetBox();
 
     setInterval(renderShapes, 15);
 }
@@ -138,6 +144,48 @@ function scalePoints(points) {
     // Return the new points
     return newPoints;
 
+}
+
+function setUpTargetBox() {
+    x = 0.25;
+    var p0 = vec2 ( -x-.05, -x-.05 );
+    var p1 = vec2 ( -x-.05, x +.05);
+    var p2 = vec2( x+.05, x+.05 );
+    var p3 = vec2( x+.05, -x-.05);
+    var arrayOfPoints = [p0, p1, p2, p3];
+    arrayOfPoints = scalePoints(arrayOfPoints);
+    
+    nvert = 4;
+    
+    vertx = [ -x-.05, -x-.05, x+.05, x+.05];
+    vertx = vertexScaler(vertx, X_SCALE);
+    //console.log("Vert x add triangle: " + vertx);
+    verty = [-x-.05, x +.05, -x-.05, x +.05];
+    verty = vertexScaler(verty, Y_SCALE);
+    
+    //console.log("Vert y add triangle: " + verty);
+    
+    // Create a shape object
+    target_box = {
+    vertx: vertx,
+    verty: verty,
+    arrayOfPoints: arrayOfPoints,
+    nvert: 4,
+    frameCount: 0,
+    };
+    
+    var i = 0;
+    for(i = 0; i < target_box.nvert; i++) {
+        /* Update vertx */
+        target_box.vertx[i] += target_shape_translation[0];
+        target_box.verty[i] += target_shape_translation[1];
+        
+        /* update the vertices to draw it */
+        target_box.arrayOfPoints[i][0] += target_shape_translation[0];
+        target_box.arrayOfPoints[i][1] += target_shape_translation[1];
+    }
+    target_box.color = target_box_color;
+    //return target_box;
 }
 
 function addDiamond() {
@@ -483,6 +531,13 @@ function generate_shapes() {
 }
 
 function renderShapes() {
+    
+    gl.clear( gl.COLOR_BUFFER_BIT);
+    gl.uniform4fv(fColorUniform, target_box.color);
+    
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(target_box.arrayOfPoints), gl.STATIC_DRAW );
+    gl.drawArrays( gl.LINE_LOOP, 0, target_box.nvert );
+    //console.log(target_box.arrayOfPoints);
     /* Generate new target shape every 4.5 seconds*/
     if (z == 0)
     {
@@ -495,7 +550,7 @@ function renderShapes() {
         z = 0;
     }
 
-    gl.clear( gl.COLOR_BUFFER_BIT);
+    //gl.clear( gl.COLOR_BUFFER_BIT);
     
     //gl.clear( gl.COLOR_BUFFER_BIT);
     gl.uniform4fv(fColorUniform, target_shape.color);
@@ -571,14 +626,14 @@ function checkShape(testx, testy, s) {
         
         if(nvert == target_shape.nvert)
         {
-            console.log("shape match!" + nvert + " = " + target_shape.nvert);
+            //console.log("shape match!" + nvert + " = " + target_shape.nvert);
             shape_match = true;
         }
         
         if(s.color == target_shape.color)
         {
-            console.log("color match!");
-            console.log("clicked color: " + s.color + " = " + target_shape.color);
+            //console.log("color match!");
+            //console.log("clicked color: " + s.color + " = " + target_shape.color);
             color_match = true;
 
         }
