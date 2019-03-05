@@ -31,6 +31,9 @@ var Y_SCALE = 1;
 var CANVAS_X = 512.0 * X_SCALE;
 var CANVAS_Y = 512.0 * Y_SCALE;
 
+var WINNING_SCORE = 1000;
+var LOSING_SCORE = -500;
+
 var NUM_SLOTS = 6; // The number of slots (number of shapes that are being shown)
 
 var APPEAR = 0.01; // The chance of a new shape appearing in an empty slot
@@ -52,7 +55,7 @@ function init()
     gl = WebGLUtils.setupWebGL(canvas);
     if (!gl) { alert( "WebGL is not available" ); }
 
-    
+
 
     /* ---------- Initialization ---------- */
     score = 0
@@ -100,7 +103,7 @@ function init()
     shapeFunctions.push(getPentagon);
     shapeFunctions.push(getHexagon);
     shapeFunctions.push(getCircle);
-    
+
     setUpTargetBox();
 
     setInterval(renderShapes, 15);
@@ -154,17 +157,17 @@ function setUpTargetBox() {
     var p3 = vec2( x+.05, -x-.05);
     var arrayOfPoints = [p0, p1, p2, p3];
     arrayOfPoints = scalePoints(arrayOfPoints);
-    
+
     nvert = 4;
-    
+
     vertx = [ -x-.05, -x-.05, x+.05, x+.05];
     vertx = vertexScaler(vertx, X_SCALE);
     //console.log("Vert x add triangle: " + vertx);
     verty = [-x-.05, x +.05, -x-.05, x +.05];
     verty = vertexScaler(verty, Y_SCALE);
-    
+
     //console.log("Vert y add triangle: " + verty);
-    
+
     // Create a shape object
     target_box = {
     vertx: vertx,
@@ -173,13 +176,13 @@ function setUpTargetBox() {
     nvert: 4,
     frameCount: 0,
     };
-    
+
     var i = 0;
     for(i = 0; i < target_box.nvert; i++) {
         /* Update vertx */
         target_box.vertx[i] += target_shape_translation[0];
         target_box.verty[i] += target_shape_translation[1];
-        
+
         /* update the vertices to draw it */
         target_box.arrayOfPoints[i][0] += target_shape_translation[0];
         target_box.arrayOfPoints[i][1] += target_shape_translation[1];
@@ -487,18 +490,18 @@ function generate_target_shape() {
     target_shape = shapeFunctions[shape_index]();
     color_index = Math.round(Math.random() * (COLORS.length -1));
     target_shape.color = COLORS[color_index];
-    
+
     var i = 0;
     for(i = 0; i < target_shape.nvert; i++) {
         /* Update vertx */
         target_shape.vertx[i] += target_shape_translation[0];
         target_shape.verty[i] += target_shape_translation[1];
-        
+
         /* update the vertices to draw it */
         target_shape.arrayOfPoints[i][0] += target_shape_translation[0];
         target_shape.arrayOfPoints[i][1] += target_shape_translation[1];
     }
-    
+
 }
 
 function generate_shapes() {
@@ -531,10 +534,10 @@ function generate_shapes() {
 }
 
 function renderShapes() {
-    
+
     gl.clear( gl.COLOR_BUFFER_BIT);
     gl.uniform4fv(fColorUniform, target_box.color);
-    
+
     gl.bufferData( gl.ARRAY_BUFFER, flatten(target_box.arrayOfPoints), gl.STATIC_DRAW );
     gl.drawArrays( gl.LINE_LOOP, 0, target_box.nvert );
     //console.log(target_box.arrayOfPoints);
@@ -543,7 +546,7 @@ function renderShapes() {
     {
         generate_target_shape();
     }
-    
+
     z++;
     if (z > 300)
     {
@@ -551,18 +554,18 @@ function renderShapes() {
     }
 
     //gl.clear( gl.COLOR_BUFFER_BIT);
-    
+
     //gl.clear( gl.COLOR_BUFFER_BIT);
     gl.uniform4fv(fColorUniform, target_shape.color);
-    
+
     //console.log(target_shape.color);
     gl.bufferData( gl.ARRAY_BUFFER, flatten(target_shape.arrayOfPoints), gl.STATIC_DRAW );
     gl.drawArrays( gl.TRIANGLE_FAN, 0, target_shape.nvert );
-    
+
     /* This function renders all of the shapes in shapes[]*/
     /* We must first generate the shapes */
     generate_shapes();
-    
+
     // This function renders the list of shapes and updates the frame count for each one
     var i = 0;
     var s;
@@ -616,20 +619,20 @@ function checkShape(testx, testy, s) {
             (testx < (vertx[j]-vertx[i]) * (testy-verty[i]) / (verty[j]-verty[i]) + vertx[i]) )
             c = !c;
     }
-    
+
     if(c) {
         // This is if the click is within the shape
         // We need to remove the shape from the list and update the score of the game
         // The score should be the maximum number of frames it could be - the number of frames it took to click
 
         // Need to update the score
-        
+
         if(nvert == target_shape.nvert)
         {
             //console.log("shape match!" + nvert + " = " + target_shape.nvert);
             shape_match = true;
         }
-        
+
         if(s.color == target_shape.color)
         {
             //console.log("color match!");
@@ -639,22 +642,21 @@ function checkShape(testx, testy, s) {
         }
         if (shape_match && color_match) //only change the score if the shape and color both match
         {
-        var addedPoints = ((s.max_time / MS_FRAME) * 1000) - s.frameCount
-        score += addedPoints;
-        //console.log("Score updated to: " + score);
-        // document.getElementById("score").value = score;
-        document.getElementById("score").innerHTML = "Score: " + Math.round(score);
-        }
-        else if (shape_match)
-        {
             var addedPoints = ((s.max_time / MS_FRAME) * 1000) - s.frameCount
-            score += addedPoints/2;
+            score += addedPoints;
             //console.log("Score updated to: " + score);
             // document.getElementById("score").value = score;
             document.getElementById("score").innerHTML = "Score: " + Math.round(score);
-            
         }
-        
+        else if (shape_match)
+        {
+                var addedPoints = ((s.max_time / MS_FRAME) * 1000) - s.frameCount
+                score += addedPoints/2;
+                //console.log("Score updated to: " + score);
+                // document.getElementById("score").value = score;
+                document.getElementById("score").innerHTML = "Score: " + Math.round(score);
+        }
+
         else
         {
             var addedPoints = ((s.max_time / MS_FRAME) * 1000) - s.frameCount
@@ -672,7 +674,18 @@ function checkShape(testx, testy, s) {
             document.getElementById("score").innerHTML = "Score: " + Math.round(score);
         }
          */
-        
+
+        /* Check to see if the user won or lost the game */
+        if(score > WINNING_SCORE) {
+            alert("YOU WIN!!!!!!!!!!!!!");
+            window.location.reload(); /* reload the page on a victory */
+        }
+        if(score < LOSING_SCORE) {
+            alert("YOU LOSE :(");
+            window.location.reload();
+        }
+
+
         //alert("Shape Clicked: " + s.frameCount);
         // We want to remove s from shapes
         for(i = 0; i < shapes.length; i++) {
@@ -683,7 +696,7 @@ function checkShape(testx, testy, s) {
             }
         }
     }
-    
+
 }
 
 function checkBounds(event)
