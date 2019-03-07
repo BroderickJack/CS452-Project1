@@ -101,7 +101,7 @@ function init()
     shapeFunctions.push(getDiamond);
     shapeFunctions.push(getEllipse);
     shapeFunctions.push(getPentagon);
-    shapeFunctions.push(getHexagon);
+    shapeFunctions.push(getOctagon);
     shapeFunctions.push(getCircle);
 
     setUpTargetBox();
@@ -324,7 +324,7 @@ function getPentagon()
     return pentagon;
 }
 
-function getHexagon()
+function getOctagon()
 {
     //x = .25
     var p0 = vec2 ( -x/3, x );
@@ -349,7 +349,7 @@ function getHexagon()
     //console.log("Vert y add triangle: " + verty);
 
     // Create a shape object
-    hexagon = {
+    octagon = {
     vertx: vertx,
     verty: verty,
     arrayOfPoints: arrayOfPoints,
@@ -357,7 +357,7 @@ function getHexagon()
     frameCount: 0,
     };
 
-    return hexagon;
+    return octagon;
 }
 
 function getCircle()
@@ -696,11 +696,19 @@ function checkShape(testx, testy, s) {
             }
         }
     }
+    if(c)
+    {
+        return true;
+    }
+    else{
+        return false;
+    }
 
 }
 
 function checkBounds(event)
 {
+    var hit = false;
     // Get the bounding box of the canvas
     var rect = canvas.getBoundingClientRect();
 
@@ -714,8 +722,26 @@ function checkBounds(event)
     var i;
     for(i = 0; i < shapes.length; i++) {
         if(shapes[i] != null) {
-            checkShape(testx, testy, shapes[i]);
+            if (checkShape(testx, testy, shapes[i]))
+                hit = true;
         }
     }
+    if (!hit)
+    {
+        score -= 20.0;
+        document.getElementById("score").innerHTML = "Score: " + Math.round(score);
+        //missed shape, subtract 20 from score
+        
+        /* Check to see if the user won or lost the game */
+        if(score > WINNING_SCORE) {
+            alert("YOU WIN!!!!!!!!!!!!!");
+            window.location.reload(); /* reload the page on a victory */
+        }
+        if(score < LOSING_SCORE) {
+            alert("YOU LOSE :(");
+            window.location.reload();
+        }
+    }
+    hit = false;
     // checkShape(testx, testy, shapes[0]);
 }
